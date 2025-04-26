@@ -1,12 +1,13 @@
 import React from 'react';
+import Home from './Home';
 
 function App() {
   return (
-    <div style={{ textAlign: 'center', marginTop: '20vh' }}>
-      <h1>Roby Asistencia 1.0</h1>
-      <p>¡Bienvenido al proyecto base!</p>
+    <div>
+      <Home />
     </div>
   );
 }
 
 export default App;
+
