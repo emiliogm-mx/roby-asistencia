@@ -3,16 +3,47 @@ import React, { useState } from 'react';
 function SugerenciasCompra() {
   const [evento, setEvento] = useState('');
   const [sugerencia, setSugerencia] = useState('');
+  const [cargando, setCargando] = useState(false);
 
-  const manejarConsulta = () => {
-    // Aquí más adelante conectaremos con OpenAI
-    if (evento.toLowerCase().includes('cumpleaños')) {
-      setSugerencia('Para un cumpleaños, te recomendamos: cerveza variada, hielos, botanas saladas y algunos vinos espumosos.');
-    } else if (evento.toLowerCase().includes('playa')) {
-      setSugerencia('Para un evento en la playa, considera cervezas ligeras, hielos extra y bebidas refrescantes como vodka y agua mineral.');
-    } else {
-      setSugerencia('Por favor proporciona más detalles sobre tu evento para ofrecerte una mejor sugerencia.');
+  const manejarConsulta = async () => {
+    if (!evento.trim()) {
+      setSugerencia('Por favor describe tu evento para ofrecerte una sugerencia.');
+      return;
     }
+
+    setCargando(true);
+
+    try {
+      const response = await fetch('https://api.openai.com/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `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`
+        },
+        body: JSON.stringify({
+          model: 'gpt-3.5-turbo',
+          messages: [
+            { role: 'system', content: 'Eres un asistente experto en organización de eventos y sugerencia de productos de conveniencia como cervezas, botanas, hielos y licores.' },
+            { role: 'user', content: `¿Qué me recomiendas comprar para este evento?: ${evento}` }
+          ],
+          temperature: 0.7
+        })
+      });
+
+      const data = await response.json();
+      const respuestaAI = data.choices?.[0]?.message?.content;
+
+      if (respuestaAI) {
+        setSugerencia(respuestaAI.trim());
+      } else {
+        setSugerencia('No se pudo obtener una sugerencia. Intenta nuevamente.');
+      }
+    } catch (error) {
+      console.error('Error al consultar OpenAI:', error);
+      setSugerencia('Ocurrió un error al obtener la sugerencia.');
+    }
+
+    setCargando(false);
   };
 
   return (
@@ -28,7 +59,7 @@ function SugerenciasCompra() {
       />
       <br /><br />
       <button onClick={manejarConsulta} style={{ padding: '10px 20px', fontSize: '16px' }}>
-        Obtener sugerencia
+        {cargando ? 'Consultando...' : 'Obtener sugerencia'}
       </button>
       <br /><br />
       {sugerencia && (
