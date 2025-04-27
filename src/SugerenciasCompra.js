@@ -1,9 +1,28 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 function SugerenciasCompra() {
   const [evento, setEvento] = useState('');
   const [sugerencia, setSugerencia] = useState('');
   const [cargando, setCargando] = useState(false);
+  const [productosDisponibles, setProductosDisponibles] = useState([]);
+
+  // Función para obtener los productos desde la URL proporcionada
+  const obtenerProductos = async () => {
+    try {
+      const response = await fetch('http://establo.homeftp.net:8000/TiendaMaya/ListaPrecioTienda.php?DB=SF');
+      const data = await response.json(); // Suponiendo que la respuesta es un JSON
+      const productos = data.map(item => item.nombre_producto); // Ajusta según la estructura del JSON
+      setProductosDisponibles(productos);
+    } catch (error) {
+      console.error('Error al obtener los productos:', error);
+      setProductosDisponibles([]);
+    }
+  };
+
+  // Cargar los productos al cargar el componente
+  useEffect(() => {
+    obtenerProductos();
+  }, []);
 
   const manejarConsulta = async () => {
     if (!evento.trim()) {
@@ -14,7 +33,7 @@ function SugerenciasCompra() {
     setCargando(true);
 
     try {
-      console.log('Consultando OpenAI con evento:', evento);  // Log de la consulta
+      console.log('Consultando OpenAI con evento:', evento);
 
       const response = await fetch('https://api.openai.com/v1/chat/completions', {
         method: 'POST',
@@ -23,19 +42,22 @@ function SugerenciasCompra() {
           'Authorization': `Bearer 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`  // Reemplaza con tu API Key
         },
         body: JSON.stringify({
-          model: 'gpt-3.5-turbo',  // O 'gpt-4' si prefieres el modelo GPT-4
+          model: 'gpt-3.5-turbo',
           messages: [
-            { role: 'system', content: 'Eres un asistente experto en organización de eventos y sugerencia de productos de conveniencia como cervezas, botanas, hielos y licores.' },
-            { role: 'user', content: `Sugerir productos para: ${evento}` }
+            {
+              role: 'system',
+              content: `Eres un asistente experto en sugerir productos para eventos. Solo puedes recomendar los siguientes productos disponibles en Roby: ${productosDisponibles.join(', ')}. No puedes sugerir productos fuera de esta lista.`
+            },
+            { role: 'user', content: `Sugerir productos para el siguiente evento: ${evento}` }
           ],
           temperature: 0.7
         })
       });
 
-      console.log('Response status:', response.status);  // Log del estado de la respuesta
+      console.log('Response status:', response.status);
 
       const data = await response.json();
-      console.log('Respuesta de OpenAI:', data);  // Log de la respuesta completa
+      console.log('Respuesta de OpenAI:', data);
 
       if (data.choices?.[0]?.message?.content) {
         setSugerencia(data.choices[0].message.content.trim());
@@ -43,7 +65,7 @@ function SugerenciasCompra() {
         setSugerencia('No se pudo obtener una sugerencia. Intenta nuevamente.');
       }
     } catch (error) {
-      console.error('Error al consultar OpenAI:', error);  // Log del error
+      console.error('Error al consultar OpenAI:', error);
       setSugerencia('Ocurrió un error al obtener la sugerencia.');
     }
 
