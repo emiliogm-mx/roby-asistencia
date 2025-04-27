@@ -40,7 +40,7 @@ function SugerenciasCompra() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer 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`  // Asegúrate de reemplazar con tu API Key
+          'Authorization': `Bearer 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`  // Asegúrate de reemplazar con tu API Key
         },
         body: JSON.stringify({
           model: 'gpt-3.5-turbo',
