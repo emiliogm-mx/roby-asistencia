@@ -14,32 +14,36 @@ function SugerenciasCompra() {
     setCargando(true);
 
     try {
+      console.log('Consultando OpenAI con evento:', evento);  // Log de la consulta
+
       const response = await fetch('https://api.openai.com/v1/chat/completions', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `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`
+          'Authorization': `Bearer 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`  // Reemplaza con tu API Key
         },
         body: JSON.stringify({
-          model: 'gpt-3.5-turbo',
+          model: 'gpt-3.5-turbo',  // O 'gpt-4' si prefieres el modelo GPT-4
           messages: [
             { role: 'system', content: 'Eres un asistente experto en organización de eventos y sugerencia de productos de conveniencia como cervezas, botanas, hielos y licores.' },
-            { role: 'user', content: `¿Qué me recomiendas comprar para este evento?: ${evento}` }
+            { role: 'user', content: `Sugerir productos para: ${evento}` }
           ],
           temperature: 0.7
         })
       });
 
-      const data = await response.json();
-      const respuestaAI = data.choices?.[0]?.message?.content;
+      console.log('Response status:', response.status);  // Log del estado de la respuesta
 
-      if (respuestaAI) {
-        setSugerencia(respuestaAI.trim());
+      const data = await response.json();
+      console.log('Respuesta de OpenAI:', data);  // Log de la respuesta completa
+
+      if (data.choices?.[0]?.message?.content) {
+        setSugerencia(data.choices[0].message.content.trim());
       } else {
         setSugerencia('No se pudo obtener una sugerencia. Intenta nuevamente.');
       }
     } catch (error) {
-      console.error('Error al consultar OpenAI:', error);
+      console.error('Error al consultar OpenAI:', error);  // Log del error
       setSugerencia('Ocurrió un error al obtener la sugerencia.');
     }
 
