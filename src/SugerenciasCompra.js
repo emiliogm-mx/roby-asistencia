@@ -6,10 +6,11 @@ function SugerenciasCompra() {
   const [cargando, setCargando] = useState(false);
   const [productosDisponibles, setProductosDisponibles] = useState([]);
 
-  // Función para obtener los productos desde la URL proporcionada
+  // Función para obtener los productos desde el archivo JSON en src/data
   const obtenerProductos = async () => {
     try {
-      const response = await fetch('http://establo.homeftp.net:8000/TiendaMaya/ListaPrecioTienda.php?DB=SF');
+      // Cargar el archivo JSON desde la carpeta 'src/data'
+      const response = await fetch('/data/productos.json');
       const data = await response.json(); // Suponiendo que la respuesta es un JSON
       const productos = data.map(item => item.nombre_producto); // Ajusta según la estructura del JSON
       setProductosDisponibles(productos);
@@ -39,14 +40,14 @@ function SugerenciasCompra() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer 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`  // Reemplaza con tu API Key
+          'Authorization': `Bearer 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`  // Asegúrate de reemplazar con tu API Key
         },
         body: JSON.stringify({
           model: 'gpt-3.5-turbo',
           messages: [
             {
               role: 'system',
-              content: `Eres un asistente experto en sugerir productos para eventos. Solo puedes recomendar los siguientes productos disponibles en Roby: ${productosDisponibles.join(', ')}. No puedes sugerir productos fuera de esta lista.`
+              content: `Eres un asistente experto en sugerir productos para eventos, reuniones, fiestas o compras de momento. Solo puedes recomendar los siguientes productos disponibles en Roby: ${productosDisponibles.join(', ')}. No puedes sugerir productos fuera de esta lista.`
             },
             { role: 'user', content: `Sugerir productos para el siguiente evento: ${evento}` }
           ],
