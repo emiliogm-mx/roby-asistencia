@@ -5,22 +5,6 @@ function SugerenciasCompra() {
   const [sugerencia, setSugerencia] = useState('');
   const [cargando, setCargando] = useState(false);
 
-  // Lista de productos disponibles en Roby
-  const productosDisponibles = [
-    'Cerveza Heineken',
-    'Cerveza Corona',
-    'Tequila José Cuervo',
-    'Ron Bacardi',
-    'Vino Tinto',
-    'Vodka Absolut',
-    'Refrescos Coca-Cola',
-    'Hielos',
-    'Botanas saladas',
-    'Papas fritas',
-    'Nachos',
-    'Frutos secos'
-  ];
-
   const manejarConsulta = async () => {
     if (!evento.trim()) {
       setSugerencia('Por favor describe tu evento para ofrecerte una sugerencia.');
@@ -36,14 +20,14 @@ function SugerenciasCompra() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `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`  // Asegúrate de reemplazar con tu API Key
+          'Authorization': `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`  // Reemplaza con tu API Key
         },
         body: JSON.stringify({
-          model: 'gpt-3.5-turbo',
+          model: 'gpt-3.5-turbo',  // Usamos el modelo GPT-3.5-turbo, o 'gpt-4' si prefieres GPT-4
           messages: [
             {
               role: 'system',
-              content: `Eres un asistente experto en sugerir productos para eventos. Solo puedes recomendar los siguientes productos disponibles en Roby: ${productosDisponibles.join(', ')}. No puedes sugerir productos fuera de esta lista.`
+              content: `Eres un asistente experto en sugerir productos para eventos. Debes sugerir productos de conveniencia como cervezas, licores, hielos, y botanas para eventos.`
             },
             { role: 'user', content: `Sugerir productos para el siguiente evento: ${evento}` }
           ],
@@ -51,10 +35,10 @@ function SugerenciasCompra() {
         })
       });
 
-      console.log('Response status:', response.status);  // Log del estado de la respuesta
+      console.log('Response status:', response.status);
 
       const data = await response.json();
-      console.log('Respuesta de OpenAI:', data);  // Log de la respuesta completa
+      console.log('Respuesta de OpenAI:', data);
 
       if (data.choices?.[0]?.message?.content) {
         setSugerencia(data.choices[0].message.content.trim());
@@ -62,7 +46,7 @@ function SugerenciasCompra() {
         setSugerencia('No se pudo obtener una sugerencia. Intenta nuevamente.');
       }
     } catch (error) {
-      console.error('Error al consultar OpenAI:', error);  // Log del error
+      console.error('Error al consultar OpenAI:', error);
       setSugerencia('Ocurrió un error al obtener la sugerencia.');
     }
 
