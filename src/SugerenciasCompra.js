@@ -1,29 +1,25 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 
 function SugerenciasCompra() {
   const [evento, setEvento] = useState('');
   const [sugerencia, setSugerencia] = useState('');
   const [cargando, setCargando] = useState(false);
-  const [productosDisponibles, setProductosDisponibles] = useState([]);
 
-  // Función para obtener los productos desde el archivo JSON en src/data
-  const obtenerProductos = async () => {
-    try {
-      // Cargar el archivo JSON desde la carpeta 'src/data'
-      const response = await fetch('/data/productos.json');
-      const data = await response.json(); // Suponiendo que la respuesta es un JSON
-      const productos = data.map(item => item.nombre_producto); // Ajusta según la estructura del JSON
-      setProductosDisponibles(productos);
-    } catch (error) {
-      console.error('Error al obtener los productos:', error);
-      setProductosDisponibles([]);
-    }
-  };
-
-  // Cargar los productos al cargar el componente
-  useEffect(() => {
-    obtenerProductos();
-  }, []);
+  // Lista de productos disponibles en Roby
+  const productosDisponibles = [
+    'Cerveza Heineken',
+    'Cerveza Corona',
+    'Tequila José Cuervo',
+    'Ron Bacardi',
+    'Vino Tinto',
+    'Vodka Absolut',
+    'Refrescos Coca-Cola',
+    'Hielos',
+    'Botanas saladas',
+    'Papas fritas',
+    'Nachos',
+    'Frutos secos'
+  ];
 
   const manejarConsulta = async () => {
     if (!evento.trim()) {
@@ -40,14 +36,14 @@ function SugerenciasCompra() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer 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`  // Asegúrate de reemplazar con tu API Key
+          'Authorization': `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`  // Asegúrate de reemplazar con tu API Key
         },
         body: JSON.stringify({
           model: 'gpt-3.5-turbo',
           messages: [
             {
               role: 'system',
-              content: `Eres un asistente experto en sugerir productos para eventos, reuniones, fiestas o compras de momento. Solo puedes recomendar los siguientes productos disponibles en Roby: ${productosDisponibles.join(', ')}. No puedes sugerir productos fuera de esta lista.`
+              content: `Eres un asistente experto en sugerir productos para eventos. Solo puedes recomendar los siguientes productos disponibles en Roby: ${productosDisponibles.join(', ')}. No puedes sugerir productos fuera de esta lista.`
             },
             { role: 'user', content: `Sugerir productos para el siguiente evento: ${evento}` }
           ],
@@ -55,10 +51,10 @@ function SugerenciasCompra() {
         })
       });
 
-      console.log('Response status:', response.status);
+      console.log('Response status:', response.status);  // Log del estado de la respuesta
 
       const data = await response.json();
-      console.log('Respuesta de OpenAI:', data);
+      console.log('Respuesta de OpenAI:', data);  // Log de la respuesta completa
 
       if (data.choices?.[0]?.message?.content) {
         setSugerencia(data.choices[0].message.content.trim());
@@ -66,7 +62,7 @@ function SugerenciasCompra() {
         setSugerencia('No se pudo obtener una sugerencia. Intenta nuevamente.');
       }
     } catch (error) {
-      console.error('Error al consultar OpenAI:', error);
+      console.error('Error al consultar OpenAI:', error);  // Log del error
       setSugerencia('Ocurrió un error al obtener la sugerencia.');
     }
 
